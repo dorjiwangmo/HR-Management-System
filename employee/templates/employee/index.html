@@ -1,0 +1,163 @@
+{% extends "employee/base.html" %}
+{% if user.is_authenticated %}
+
+{% block body%}
+<h3 class="m-4">All Employee</h3>
+<div class="row">
+    <div class="col-12">
+        {% if employees %}
+        <div class="card border-light ms-4 me-4 mb-3" >
+            <div class="card-header">
+                <i class="fa-solid fa-list fa-lg"></i> Employee Records
+            </div>
+            <div class="card-body">
+              <p class="card-text">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Employee ID</th>
+                            <th scope="col">Gender</th>
+                            <th scope="col">DOB</th>
+                            <th scope="col">Designation</th>
+                            <th scope="col">Department</th>
+                            <th scope="col">Appointment Date</th>
+                            <th scope="col">Actions</th>
+
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {% for employee in employees %}
+                                <tr>
+                                    <td>{{ employee.name }}</td>
+                                    <td>{{ employee.employee_id }}</td>
+                                    <td>{{ employee.gender }}</td>
+                                    <td>{{ employee.formatted_dob }}</td>
+                                    <td>{{ employee.designation }}</td>
+                                    <td>{{ employee.department }}</td>
+                                    <td>{{ employee.formatted_appointment_date}}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-success me-1" href="{% url 'view_employee' employee.id %}" data-bs-toggle="modal" data-bs-target="#myModal{{employee.id}}">
+                                            <i class="fa-solid fa-circle-info "></i>
+                                        </button>
+
+                                        <!-- Modal view Employee-->
+                                        <div class="modal" id="myModal{{employee.id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                              <div class="modal-content">
+                                                <div class="modal-header">
+                                                  <h5 class="modal-title">
+                                                    Employee:{{ employee.name }}
+                                                  </h5>
+                                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true"></span>
+                                                  </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                  <ul class="list-unstyled">
+                                                    <li>Name: <strong>{{ employee.name }}</strong></li>
+                                                    <li>Employee ID: <strong>{{ employee.employee_id }}</strong></li>
+                                                    <li>Gender: <strong>{{ employee.gender }}</strong></li>
+                                                    <li>DOB: <strong>{{ employee.formatted_dob }}</strong></li>
+                                                    <li>Designation: <strong>{{ employee.designation }}</strong></li>
+                                                    <li>Department: <strong>{{ employee.department }}</strong></li>
+                                                    <li>Appointment Date: <strong>{{ employee.formatted_appointment_date }}</strong></li>
+                                                  </ul>
+                                                </div>
+                                                <div class="modal-footer">
+                                                  
+                                                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <a class="btn btn-warning me-1" href="{% url 'edit' employee.id %}">
+                                            <i class="fa-solid fa-pen-to-square "></i>
+                                          </a>
+
+                                          <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{employee.id}}">
+                                            <i class="fa-solid fa-trash"></i>
+                                          </button>
+
+                                          <!-- Modal Delete Employee-->
+                                          <div class="modal" id="delete{{employee.id}}" tabindex="-1" aria-labelledby="myModalLabel2" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                              <div class="modal-content">
+                                                <div class="modal-header">
+                                                  <h5 class="modal-title">
+                                                    Employee:{{ employee.name }}
+                                                  </h5>
+                                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true"></span>
+                                                  </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                  <p>Are you sure you want to delete this employee?</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                  <form action="{% url 'delete' employee.id %}" method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="submit" class="btn btn-primary" value="Delete">
+                                                  </form>
+                                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                      </table>
+
+
+<div class="container">
+  <div class="row my-5 ">
+      <p>Page: {{ employees.number }}/{{ employees.paginator.num_pages }}</p>
+      <div class="col-md-4 offset-md-3">
+          <nav aria-label="...">
+              <ul class="pagination">
+                  {% if employees.has_previous %}
+                      <li class="page-item"><a class="page-link" href="?page={{ employees.previous_page_number }}">Previous</a></li>
+                  {% else %}
+                      <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                  {% endif %}
+                  
+                  {% for num in employees.paginator.page_range %}
+                      {% if num == employees.number %}
+                          <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                      {% else %}
+                          <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                      {% endif %}
+                  {% endfor %}
+                  
+                  {% if employees.has_next %}
+                      <li class="page-item"><a class="page-link" href="?page={{ employees.next_page_number }}">Next</a></li>
+                  {% else %}
+                      <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                  {% endif %}
+              </ul>
+          </nav>
+      </div>
+  </div>
+</div>
+
+
+
+                </div>
+              </p>
+            </div>
+          </div>
+        {% else %}
+            <h5 class="alert alert-primary ms-4 me-4">No Employee Record</h5>
+        {% endif %}
+          
+    </div>
+</div>
+
+
+
+{% endblock %}
+{% endif %}
